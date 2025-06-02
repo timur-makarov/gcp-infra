@@ -1,0 +1,18 @@
+{
+  "name": "bun-service",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "scripts": {
+    "dev": "bun run --watch main.ts",
+    "build": "bun build main.ts --outfile bun-service",
+    "start": "bun run bun-service"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "systeminformation": "^5.27.1"
+  }
+}

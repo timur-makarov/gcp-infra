@@ -1,0 +1,12 @@
+namespace: gcp-infra-dev
+
+image:
+  repository: makarovt/gcp-infra-go-service
+  tag: latest-dev
+
+service:
+  name: go-service
+  port: 8080
+
+configmap:
+  name: go-service-configmap
