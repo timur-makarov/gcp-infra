@@ -55,9 +55,9 @@ func discoverOtherMicroservices(
 		labelSelector,
 	)
 
-	serviceList, err := clientset.CoreV1().Services(namespace).List(ctx, metav1.ListOptions{
-		LabelSelector: labelSelector,
-	})
+	serviceList, err := clientset.CoreV1().
+		Services(namespace).
+		List(ctx, metav1.ListOptions{LabelSelector: labelSelector})
 	if err != nil {
 		return nil, fmt.Errorf("failed to list services in namespace %s: %w", namespace, err)
 	}
@@ -73,7 +73,11 @@ func discoverOtherMicroservices(
 			continue
 		}
 
-		fmt.Printf("Found service: %s (Namespace: %s, ClusterIP: %s)\n", service.Name, service.Namespace, service.Spec.ClusterIP)
+		fmt.Printf("Found service: %s (Namespace: %s, ClusterIP: %s)\n",
+			service.Name,
+			service.Namespace,
+			service.Spec.ClusterIP,
+		)
 
 		var portsInfo []PortInfo
 		for _, p := range service.Spec.Ports {
