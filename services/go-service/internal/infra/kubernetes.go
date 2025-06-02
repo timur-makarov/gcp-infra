@@ -41,11 +41,19 @@ func getKubeConfig() (*rest.Config, error) {
 	return config, nil
 }
 
-func discoverOtherMicroservices(clientset *kubernetes.Clientset, namespace, labelSelector, myServiceName string) ([]DiscoveredServiceInfo, error) {
+func discoverOtherMicroservices(
+	clientset *kubernetes.Clientset,
+	namespace,
+	labelSelector,
+	myServiceName string,
+) ([]DiscoveredServiceInfo, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	fmt.Printf("Discovering services in namespace '%s' with label selector '%s'\n", namespace, labelSelector)
+	fmt.Printf("Discovering services in namespace '%s' with label selector '%s'\n",
+		namespace,
+		labelSelector,
+	)
 
 	serviceList, err := clientset.CoreV1().Services(namespace).List(ctx, metav1.ListOptions{
 		LabelSelector: labelSelector,
@@ -109,13 +117,23 @@ func GetAvailableKuberServices() []DiscoveredServiceInfo {
 	fmt.Printf("Operating in namespace: %s\n", namespace)
 
 	myServiceName := os.Getenv("SERVICE_NAME")
-
 	targetLabelSelector := os.Getenv("DISCOVER_SERVICE_LABEL_SELECTOR")
+
 	if targetLabelSelector == "" {
-		fmt.Println("DISCOVER_SERVICE_LABEL_SELECTOR not set, discovering all services (except 'kubernetes').")
+		fmt.Println("DISCOVER_SERVICE_LABEL_SELECTOR not set, discovering all services.")
 	}
 
-	availableServices, err := discoverOtherMicroservices(clientset, namespace, targetLabelSelector, myServiceName)
+	if myServiceName == "" {
+		fmt.Println("SERVICE_NAME not set, exiting.")
+		os.Exit(1)
+	}
+
+	availableServices, err := discoverOtherMicroservices(
+		clientset,
+		namespace,
+		targetLabelSelector,
+		myServiceName,
+	)
 	if err != nil {
 		fmt.Printf("Error discovering services: %v\n", err)
 		os.Exit(1)
@@ -131,18 +149,30 @@ func GetAvailableKuberServices() []DiscoveredServiceInfo {
 			if len(svcInfo.Ports) > 0 {
 				fmt.Printf("    Ports:\n")
 				for _, p := range svcInfo.Ports {
-					fmt.Printf("      - Port: %d, Protocol: %s, TargetPort: %d, Name: %s\n", p.Port, p.Protocol, p.TargetPort, p.Name)
+					fmt.Printf("      - Port: %d, Protocol: %s, TargetPort: %d, Name: %s\n",
+						p.Port,
+						p.Protocol,
+						p.TargetPort,
+						p.Name,
+					)
 				}
 
 				targetServicePort := svcInfo.Ports[0].Port
-				serviceURL := fmt.Sprintf("http://%s.%s.svc.cluster.local:%d/api/somepath", svcInfo.Name, svcInfo.Namespace, targetServicePort)
+				serviceURL := fmt.Sprintf("http://%s.%s.svc.cluster.local:%d/api/somepath",
+					svcInfo.Name,
+					svcInfo.Namespace,
+					targetServicePort,
+				)
 				fmt.Printf("Example URL: %s\n", serviceURL)
 			} else {
 				fmt.Printf("    Service %s has no ports defined.\n", svcInfo.Name)
 			}
 		}
 	} else {
-		fmt.Printf("No services found with label selector '%s' in namespace '%s'.\n", targetLabelSelector, namespace)
+		fmt.Printf("No services found with label selector '%s' in namespace '%s'.\n",
+			targetLabelSelector,
+			namespace,
+		)
 	}
 
 	return availableServices
