@@ -1,0 +1,19 @@
+namespace: dev
+
+image:
+  repository: makarovt/gcp-infra-python-service
+  tag: latest-dev
+
+service:
+  name: python-service
+  port: 8070
+  component: microservice
+
+configmap:
+  name: python-service-configmap
+  discoverServiceLabelSelector: "component=microservice"
+
+rbac:
+  serviceAccountName: python-service-sa
+  roleName: python-service-role
+  roleBindingName: python-service-role-binding 

@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"go-service/internal/infra"
 	"log"
 	"net/http"
 	"os"
@@ -22,7 +23,7 @@ func init() {
 	systemMetrics["cpu_usage_percent"] = 0.0
 	systemMetrics["memory_usage_percent"] = 0.0
 	systemMetrics["last_updated_utc"] = time.Now().UTC().Format(time.RFC3339)
-	systemMetrics["kubernetes_pod_name"] = os.Getenv("MY_POD_NAME")
+	systemMetrics["available_services"] = infra.GetAvailableKuberServices()
 }
 
 func collectSystemMetrics() {
@@ -92,7 +93,12 @@ func main() {
 
 	http.HandleFunc("/metrics", metricsHandler)
 
-	port := "8080"
+	port := os.Getenv("PORT")
+
+	if port == "" {
+		log.Fatalln("Failed to get PORT env variable")
+	}
+
 	log.Printf("✅ Server starting on port %s...", port)
 	log.Printf("👉 Metrics will be available at http://localhost:%s/metrics", port)
 

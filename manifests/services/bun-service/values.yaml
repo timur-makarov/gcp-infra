@@ -1,0 +1,19 @@
+namespace: dev
+
+image:
+  repository: makarovt/gcp-infra-bun-service
+  tag: latest-dev
+
+service:
+  name: bun-service
+  port: 8060
+  component: microservice
+
+configmap:
+  name: bun-service-configmap
+  discoverServiceLabelSelector: "component=microservice"
+
+rbac:
+  serviceAccountName: bun-service-sa
+  roleName: bun-service-role
+  roleBindingName: bun-service-role-binding 

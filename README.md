@@ -10,3 +10,8 @@
 - Backup System
 
 Microservices will make lots of CRUD queries between each other and collect data about them.
+
+**What is done already?**
+
+- Created simple microservices and added discovery of Kubernetes services
+- Created Helm charts for microservices

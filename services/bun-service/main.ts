@@ -1,18 +1,22 @@
 import si from "systeminformation";
+import { Elysia } from "elysia";
+import { getAvailableKuberServices, type DiscoveredServiceInfo } from "./src/infra/kubernetes";
 
 interface SystemMetrics {
   cpu_usage_percent: number;
   memory_usage_percent: number;
   last_updated_utc: string;
+  available_services: DiscoveredServiceInfo[];
 }
 
 let systemMetrics: SystemMetrics;
 
-function initializeMetrics(): void {
+async function initializeMetrics(): Promise<void> {
   systemMetrics = {
     cpu_usage_percent: 0.0,
     memory_usage_percent: 0.0,
     last_updated_utc: new Date().toISOString(),
+    available_services: await getAvailableKuberServices(),
   };
 }
 
@@ -39,7 +43,7 @@ async function collectSystemMetrics(): Promise<void> {
 }
 
 async function initializeAndStartCollector(): Promise<void> {
-  initializeMetrics();
+  await initializeMetrics();
   console.log("🚀 Performing initial metrics collection...");
   await collectSystemMetrics();
   console.log("✅ Initial metrics collection complete.");
@@ -48,26 +52,18 @@ async function initializeAndStartCollector(): Promise<void> {
   console.log("✅ Background metrics collector started.");
 }
 
-const port: number = 8080;
+const port: number = parseInt(process.env.PORT || "8080", 10);
 
 initializeAndStartCollector();
 
-console.log(`⏳ Starting server on port ${port} (Bun Native HTTP + TypeScript)...`);
+const app = new Elysia()
+  .get("/metrics", () => systemMetrics)
+  .onError(({ code, error }) => {
+    console.error(`🚨 Server error: ${error instanceof Error ? error.message : "Unknown error"}`);
+    return new Response("Internal Server Error", { status: 500 });
+  });
+
+console.log(`⏳ Starting server on port ${port} (Elysia + Bun)...`);
 console.log(`👉 Metrics will be available at http://localhost:${port}/metrics`);
 
-Bun.serve({
-  port: port,
-  fetch(req: Request): Response | Promise<Response> {
-    const url = new URL(req.url);
-
-    if (req.method === "GET" && url.pathname === "/metrics") {
-      return Response.json(systemMetrics);
-    }
-
-    return new Response("Not Found", { status: 404 });
-  },
-  error(error: Error): Response | Promise<Response> {
-    console.error(`🚨 Bun server error: ${error.stack || error.message}`);
-    return new Response("Internal Server Error", { status: 500 });
-  },
-});
+app.listen(port);

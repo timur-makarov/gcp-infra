@@ -1,4 +1,4 @@
-namespace: gcp-infra-dev
+namespace: dev
 
 image:
   repository: makarovt/gcp-infra-go-service
@@ -7,6 +7,13 @@ image:
 service:
   name: go-service
   port: 8080
+  component: microservice
 
 configmap:
   name: go-service-configmap
+  discoverServiceLabelSelector: "component=microservice"
+
+rbac:
+  serviceAccountName: go-service-sa
+  roleName: go-service-role
+  roleBindingName: go-service-role-binding

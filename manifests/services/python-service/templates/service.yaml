@@ -8,7 +8,7 @@ metadata:
 spec:
   selector:
     app: {{ .Values.service.name }}
-  type: LoadBalancer
+  type: LoadBalancer 
   ports:
     - port: {{ .Values.service.port }}
       targetPort: {{ .Values.service.port }}

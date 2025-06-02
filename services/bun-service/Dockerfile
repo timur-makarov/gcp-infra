@@ -1,13 +1,17 @@
-FROM oven/bun:alpine
+FROM oven/bun:alpine AS builder
 
 WORKDIR /app
 
-COPY . .
+COPY package.json bun.lock ./
 
 RUN bun install
 
+COPY . .
+
 RUN bun run build
 
-EXPOSE 8080
+FROM oven/bun:alpine
 
-CMD ["bun", "run", "start"]
+COPY --from=builder /app/bun-service /usr/local/bin/bun-service
+
+CMD ["bun-service"]

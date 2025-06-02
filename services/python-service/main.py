@@ -1,10 +1,12 @@
 import threading
 import time
+import os
 from datetime import datetime, timezone
 
 import psutil
 import uvicorn
 from fastapi import FastAPI
+from kubernetes_discovery import get_available_kubernetes_services
 
 system_metrics = {}
 metrics_lock = threading.RLock()
@@ -15,6 +17,7 @@ def initialize_metrics_globally():
         system_metrics["cpu_usage_percent"] = 0.0
         system_metrics["memory_usage_percent"] = 0.0
         system_metrics["last_updated_utc"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        system_metrics["available_services"] = get_available_kubernetes_services()
 
 initialize_metrics_globally()
 
@@ -58,6 +61,7 @@ async def read_metrics():
     return data_snapshot
 
 if __name__ == "__main__":
+    port = int(os.getenv("PORT", "8070"))
     print(f"✅ FastAPI Server starting...")
-    print(f"👉 Metrics will be available at http://localhost:8080/metrics")
-    uvicorn.run(app, host="0.0.0.0", port=8080)
+    print(f"👉 Metrics will be available at http://localhost:{port}/metrics")
+    uvicorn.run(app, host="0.0.0.0", port=port)
