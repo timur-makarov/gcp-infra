@@ -19,6 +19,8 @@ spec:
       labels:
         app: {{ .Values.service.name }}
         component: {{ .Values.service.component }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
     spec:
       serviceAccountName: {{ .Values.rbac.serviceAccountName }}
       containers:

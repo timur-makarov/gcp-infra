@@ -1,0 +1,10 @@
+global:
+  postgresql:
+    auth:
+      postgresPassword: "password"
+      database: "simulated-activity"
+
+primary:
+  persistence:
+    enabled: true
+    size: 3Gi

@@ -8,3 +8,4 @@ data:
   DISCOVER_SERVICE_LABEL_SELECTOR: "{{ .Values.configmap.discoverServiceLabelSelector }}"
   NAMESPACE: "{{ .Values.namespace }}"
   SERVICE_NAME: "{{ .Values.service.name }}"
+  NODE_TLS_REJECT_UNAUTHORIZED: "{{ .Values.configmap.nodeTlsRejectUnauthorized | default "1" }}"
